@@ -47,18 +47,22 @@ function s.splimit(e,se,sp,st)
 end
 
 function s.revealcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToShuffleIntoDeck() end
+	if chk==0 then return e:GetHandler():IsAbleToDeck() end
 	Duel.ConfirmCards(1-tp,e:GetHandler())
 end
 
+function s.chaosdistillfilter(c)
+	return c:IsCode(7) and c:IsType(TYPE_SPELL)
+end
+
 function s.revealtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsCode,7),tp,LOCATION_DECK,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.chaosdistillfilter,tp,LOCATION_DECK,0,1,nil) end
 end
 
 function s.revealop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
-		local tc=Duel.GetFirstMatchingCard(aux.FilterFaceupFunction(Card.IsCode,7),tp,LOCATION_DECK,0,nil)
+		local tc=Duel.GetFirstMatchingCard(s.chaosdistillfilter,tp,LOCATION_DECK,0,nil)
 		if tc and Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
 			Duel.ShuffleDeck(tp)
 			Duel.SendtoDeck(c,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
@@ -76,9 +80,9 @@ end
 
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() end
-	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToGrave,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectTarget(tp,Card.IsAbleToGrave,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g,1,0,0)
 end
 

@@ -46,18 +46,22 @@ function s.splimit(e,se,sp,st)
 end
 
 function s.revealcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToShuffleIntoDeck() end
+	if chk==0 then return e:GetHandler():IsAbleToDeck() end
 	Duel.ConfirmCards(1-tp,e:GetHandler())
 end
 
+function s.chaosdistillfilter(c)
+	return c:IsCode(7) and c:IsType(TYPE_SPELL)
+end
+
 function s.revealtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsCode,7),tp,LOCATION_DECK,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.chaosdistillfilter,tp,LOCATION_DECK,0,1,nil) end
 end
 
 function s.revealop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
-		local tc=Duel.GetFirstMatchingCard(aux.FilterFaceupFunction(Card.IsCode,7),tp,LOCATION_DECK,0,nil)
+		local tc=Duel.GetFirstMatchingCard(s.chaosdistillfilter,tp,LOCATION_DECK,0,nil)
 		if tc and Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
 			Duel.ShuffleDeck(tp)
 			Duel.SendtoDeck(c,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
@@ -73,8 +77,13 @@ function s.searchcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 
+function s.isalchemybeastlisted(c)
+	-- Check if card mentions "Alchemy Beast" in its text
+	return c:IsSetCard(0x501) or c:ListsArchetype(0x501)
+end
+
 function s.searchfilter(c)
-	return c:IsSpell() and aux.IsCodeListed(c,0x501) and c:IsAbleToHand()
+	return c:IsSpell() and s.isalchemybeastlisted(c) and c:IsAbleToHand()
 end
 
 function s.searchtg(e,tp,eg,ep,ev,re,r,rp,chk)

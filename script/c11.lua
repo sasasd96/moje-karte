@@ -26,7 +26,7 @@ s.listed_names={7,4} --Chaos Distill, Moonface the Silver
 s.listed_series={0x501} --Alchemy Beast
 
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,7),tp,LOCATION_ONFIELD,0,1,nil)
+	return Duel.IsExistingMatchingCard(s.chaosdistillfilter,tp,LOCATION_ONFIELD,0,1,nil)
 end
 
 function s.spfilter(c,e,tp)
@@ -52,7 +52,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.reccon(e,tp,eg,ep,ev,re,r,rp)
-	return aux.exccon(e) and e:GetHandler():GetTurnID()~=Duel.GetTurnCount()
+	return e:GetHandler():IsLocation(LOCATION_REMOVED) and e:GetHandler():GetTurnID()~=Duel.GetTurnCount()
 end
 
 function s.recfilter(c)

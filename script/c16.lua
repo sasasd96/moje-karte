@@ -47,7 +47,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)>0 then
 			local atk=tc:GetAttack()
 			local rg=Duel.GetMatchingGroup(s.rmfilter,tp,0,LOCATION_MZONE,nil,atk)
-			if #rg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+			if #rg>0 then
 				Duel.BreakEffect()
 				Duel.Remove(rg,POS_FACEUP,REASON_EFFECT)
 			end

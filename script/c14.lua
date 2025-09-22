@@ -22,8 +22,12 @@ function s.initial_effect(c)
 end
 s.listed_names={7,27408609} --Chaos Distill, Golden Homunculus
 
+function s.chaosdistillfilter(c)
+	return c:IsFaceup() and c:IsCode(7)
+end
+
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,7),tp,LOCATION_ONFIELD,0,1,nil)
+	return Duel.IsExistingMatchingCard(s.chaosdistillfilter,tp,LOCATION_ONFIELD,0,1,nil)
 end
 
 function s.spfilter(c,e,tp)
@@ -62,7 +66,7 @@ function s.repfilter(c,tp)
 end
 
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToShuffleIntoDeck() and eg:IsExists(s.repfilter,1,nil,tp) end
+	if chk==0 then return e:GetHandler():IsAbleToDeck() and eg:IsExists(s.repfilter,1,nil,tp) end
 	return Duel.SelectEffectYesNo(tp,e:GetHandler(),96)
 end
 

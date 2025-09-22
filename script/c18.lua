@@ -32,8 +32,16 @@ function s.initial_effect(c)
 end
 s.listed_names={7} --Chaos Distill
 
+function s.chaosdistillfilter(c)
+	return c:IsFaceup() and c:IsCode(7)
+end
+
+function s.monsterfilter(c)
+	return c:IsFaceup() and c:IsMonster()
+end
+
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,7),tp,LOCATION_ONFIELD,0,1,nil)
+	return Duel.IsExistingMatchingCard(s.chaosdistillfilter,tp,LOCATION_ONFIELD,0,1,nil)
 		and Duel.GetAttacker():IsControler(1-tp)
 end
 
@@ -49,14 +57,14 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.discon(e)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,7),e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,nil)
+	return Duel.IsExistingMatchingCard(s.chaosdistillfilter,e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,nil)
 		and s.attrcheck(e:GetHandlerPlayer())
 end
 
 function s.attrcheck(tp)
 	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_REMOVED,0,nil)
 	local attrs=0
-	for tc in aux.Next(g) do
+	for tc in g:Iter() do
 		if tc:IsMonster() then
 			attrs=attrs|tc:GetAttribute()
 		end
@@ -73,8 +81,8 @@ end
 function s.distg(e,c)
 	if not c:IsMonster() then return false end
 	local tp=e:GetHandlerPlayer()
-	local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsMonster),tp,LOCATION_REMOVED,0,nil)
-	for tc in aux.Next(g) do
+	local g=Duel.GetMatchingGroup(s.monsterfilter,tp,LOCATION_REMOVED,0,nil)
+	for tc in g:Iter() do
 		if c:IsAttribute(tc:GetAttribute()) then
 			return true
 		end

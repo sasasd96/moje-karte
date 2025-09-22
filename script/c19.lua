@@ -2,8 +2,6 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
-	--Fusion material
-	Fusion.AddProcMix(c,true,true,s.ffilter,s.ffilter,s.ffilter,s.ffilter,s.ffilter,s.ffilter)
 	--Must be Special Summoned by shuffling materials from banishment
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -17,6 +15,7 @@ function s.initial_effect(c)
 	e2:SetCode(EFFECT_SPSUMMON_PROC)
 	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e2:SetRange(LOCATION_EXTRA)
+	e2:SetValue(SUMMON_TYPE_FUSION)
 	e2:SetCondition(s.spcon)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
@@ -58,12 +57,8 @@ function s.initial_effect(c)
 end
 s.listed_series={0x501} --Alchemy Beast
 
-function s.ffilter(c,fc,sumtype,tp)
-	return c:IsSetCard(0x501,fc,sumtype,tp) and c:IsLevel(3) and c:IsType(TYPE_MONSTER,fc,sumtype,tp)
-end
-
 function s.splimit(e,se,sp,st)
-	return not e:GetHandler():IsLocation(LOCATION_EXTRA) or aux.fuslimit(e,se,sp,st)
+	return not e:GetHandler():IsLocation(LOCATION_EXTRA) or (st&SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION
 end
 
 function s.spfilter(c)
@@ -74,17 +69,31 @@ function s.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	local g=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_REMOVED,0,nil)
-	return aux.SelectUnselectGroup(g,e,tp,6,6,s.rescon,0)
+	return g:GetClassCount(Card.GetCode)>=6
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,c)
 	local g=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_REMOVED,0,nil)
-	local sg=aux.SelectUnselectGroup(g,e,tp,6,6,s.rescon,1,tp,HINTMSG_TODECK,s.rescon)
-	if #sg>0 then
-		sg:KeepAlive()
-		e:SetLabelObject(sg)
+	if chk==0 then return g:GetClassCount(Card.GetCode)>=6 end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+	local sg=Group.CreateGroup()
+	local codes={}
+	for tc in g:Iter() do
+		local code=tc:GetCode()
+		if not codes[code] then
+			sg:AddCard(tc)
+			codes[code]=true
+			if #sg>=6 then break end
+		end
+	end
+	if #sg>=6 then
+		local final_sg=sg:Select(tp,6,6,nil)
+		final_sg:KeepAlive()
+		e:SetLabelObject(final_sg)
 		return true
-	else return false end
+	else 
+		return false 
+	end
 end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
@@ -94,7 +103,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 end
 
 function s.rescon(sg,e,tp,mg)
-	return aux.dncheck(sg) and #sg==6
+	return sg:GetClassCount(Card.GetCode)==6 and #sg==6
 end
 
 function s.atkval(e,c)

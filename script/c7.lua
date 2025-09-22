@@ -42,10 +42,15 @@ function s.initial_effect(c)
 end
 s.listed_series={0x501} --Alchemy Beast
 
+function s.isalchemybeastlisted(c)
+	-- Check if card mentions "Alchemy Beast" in its text
+	return c:IsSetCard(0x501) or c:ListsArchetype(0x501)
+end
+
 function s.effectfilter(e,ct)
 	local p=e:GetHandler():GetControler()
 	local te,tp=Duel.GetChainInfo(ct,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_PLAYER)
-	return p==tp and te:GetHandler():IsSpell() and aux.IsCodeListed(te:GetHandler(),0x501)
+	return p==tp and te:GetHandler():IsSpell() and s.isalchemybeastlisted(te:GetHandler())
 end
 
 function s.rmcon(e)
@@ -60,7 +65,7 @@ function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.thfilter(c)
-	return c:IsSpell() and aux.IsCodeListed(c,0x501) and c:IsAbleToHand()
+	return c:IsSpell() and s.isalchemybeastlisted(c) and c:IsAbleToHand()
 end
 
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -72,7 +77,8 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
 	if #g>=2 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local sg=aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,1,tp,HINTMSG_ATOHAND)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+		local sg=g:Select(tp,2,2,nil)
 		if #sg==2 then
 			Duel.SendtoHand(sg,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,sg)
@@ -81,5 +87,5 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.rescon(sg,e,tp,mg)
-	return aux.dncheck(sg)
+	return sg:GetClassCount(Card.GetCode)==#sg
 end
