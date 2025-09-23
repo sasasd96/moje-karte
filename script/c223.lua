@@ -3,7 +3,13 @@ local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--Fusion material: 3 "Orichalcos" monsters
-	aux.AddFusionProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,0x12ab),3)
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e0:SetCode(EFFECT_FUSION_MATERIAL)
+	e0:SetCondition(s.fuscon)
+	e0:SetOperation(s.fusop)
+	c:RegisterEffect(e0)
 	--ATK/DEF gain
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -67,4 +73,14 @@ function s.lpop(e,tp,eg,ep,ev,re,r,rp)
 	if ct>0 then
 		Duel.Recover(tp,ct*200,REASON_EFFECT)
 	end
+end
+function s.fusfilter(c)
+	return c:IsSetCard(0x12ab) and c:IsType(TYPE_MONSTER)
+end
+function s.fuscon(e,g,gc,chkfnf)
+	if g==nil then return true end
+	return g:IsExists(s.fusfilter,3,nil) and (not gc or s.fusfilter(gc))
+end
+function s.fusop(e,tp,eg,ep,ev,re,r,rp,gc,chkfnf)
+	return not gc or s.fusfilter(gc)
 end
