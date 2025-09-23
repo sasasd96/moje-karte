@@ -4,7 +4,11 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--3 tributes
 	local e1=aux.AddNormalSummonProcedure(c,true,false,3,3)
-	local e2=aux.AddNormalSetProcedure(c)
+	--Cannot be normal set
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetCode(EFFECT_CANNOT_SET)
+	c:RegisterEffect(e2)
 	--summon cannot be negated
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE)
