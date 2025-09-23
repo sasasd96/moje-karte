@@ -2,8 +2,8 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
-	--Fusion material
-	Fusion.AddProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,0x12ab),2)
+	--Fusion material: 2 "Orichalcos" monsters
+	aux.AddFusionProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,0x12ab),2)
 	--Negate effect
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
