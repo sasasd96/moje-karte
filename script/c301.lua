@@ -1,4 +1,4 @@
---Toon Relinquished
+--Toon Relinquished (Completely Rewritten)
 local s,id=GetID()
 function s.initial_effect(c)
 	--Cannot be Normal Summoned/Set
@@ -19,7 +19,7 @@ function s.initial_effect(c)
 	e2:SetCode(EFFECT_DIRECT_ATTACK)
 	e2:SetCondition(s.dircon)
 	c:RegisterEffect(e2)
-	--Equip opponent's monster
+	--Absorb 1 monster
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
 	e3:SetCategory(CATEGORY_EQUIP)
@@ -31,32 +31,23 @@ function s.initial_effect(c)
 	e3:SetTarget(s.eqtg)
 	e3:SetOperation(s.eqop)
 	c:RegisterEffect(e3)
-	--ATK/DEF equal to equipped monster
+	--Negate and destroy
 	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(EFFECT_SET_ATTACK)
-	e4:SetCondition(s.atkcon)
-	e4:SetValue(s.atkval)
+	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EVENT_CHAINING)
+	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetCondition(s.negcon)
+	e4:SetCost(s.negcost)
+	e4:SetTarget(s.negtg)
+	e4:SetOperation(s.negop)
 	c:RegisterEffect(e4)
-	local e5=e4:Clone()
-	e5:SetCode(EFFECT_SET_DEFENSE)
-	c:RegisterEffect(e5)
-	--Negate activation
-	local e6=Effect.CreateEffect(c)
-	e6:SetDescription(aux.Stringid(id,1))
-	e6:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
-	e6:SetType(EFFECT_TYPE_QUICK_O)
-	e6:SetCode(EVENT_CHAINING)
-	e6:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
-	e6:SetRange(LOCATION_MZONE)
-	e6:SetCondition(s.negcon)
-	e6:SetCost(s.negcost)
-	e6:SetTarget(s.negtg)
-	e6:SetOperation(s.negop)
-	c:RegisterEffect(e6)
 end
 s.listed_names={15259703,43175858}
 s.listed_series={0x62}
+
 function s.spfilter(c,tp)
 	return c:IsSetCard(0x62) and c:IsType(TYPE_MONSTER) 
 		and (c:IsLocation(LOCATION_HAND) or (c:IsLocation(LOCATION_MZONE) and c:IsReleasable()))
@@ -93,15 +84,18 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	end
 	sg:DeleteGroup()
 end
+
 function s.dircon(e)
 	local tp=e:GetHandlerPlayer()
 	return (Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
 		or Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,43175858),tp,LOCATION_ONFIELD,0,1,nil))
 		and not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x62),tp,0,LOCATION_MZONE,1,nil)
 end
+
 function s.eqcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
-		or Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,43175858),tp,LOCATION_ONFIELD,0,1,nil)
+	return (Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
+		or Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,43175858),tp,LOCATION_ONFIELD,0,1,nil))
+		and not e:GetHandler():GetEquipGroup():IsExists(Card.IsType,1,nil,TYPE_MONSTER)
 end
 function s.eqfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_MONSTER) and c:IsAbleToChangeControler()
@@ -109,8 +103,7 @@ end
 function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and s.eqfilter(chkc) end
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and Duel.IsExistingTarget(s.eqfilter,tp,0,LOCATION_MZONE,1,nil)
-		and not e:GetHandler():GetEquipGroup():IsExists(Card.IsType,1,nil,TYPE_MONSTER) end
+		and Duel.IsExistingTarget(s.eqfilter,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
 	local g=Duel.SelectTarget(tp,s.eqfilter,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_EQUIP,g,1,0,0)
@@ -120,48 +113,60 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() and c:IsRelateToEffect(e) and c:IsFaceup() then
 		if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
-		Duel.Equip(tp,tc,c)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_EQUIP_LIMIT)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		e1:SetValue(s.eqlimit)
-		e1:SetLabelObject(c)
-		tc:RegisterEffect(e1)
+		if Duel.Equip(tp,tc,c) then
+			--Equip limit
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_EQUIP_LIMIT)
+			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+			e1:SetValue(s.eqlimit)
+			e1:SetLabelObject(c)
+			tc:RegisterEffect(e1)
+			--ATK becomes equal to equipped monster
+			local e2=Effect.CreateEffect(c)
+			e2:SetType(EFFECT_TYPE_EQUIP)
+			e2:SetCode(EFFECT_SET_ATTACK_FINAL)
+			e2:SetValue(s.adval)
+			e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+			tc:RegisterEffect(e2)
+			--DEF becomes equal to equipped monster  
+			local e3=Effect.CreateEffect(c)
+			e3:SetType(EFFECT_TYPE_EQUIP)
+			e3:SetCode(EFFECT_SET_DEFENSE_FINAL)
+			e3:SetValue(s.adval)
+			e3:SetReset(RESET_EVENT+RESETS_STANDARD)
+			tc:RegisterEffect(e3)
+		end
 	end
 end
 function s.eqlimit(e,c)
 	return c==e:GetLabelObject()
 end
-function s.atkcon(e)
-	return e:GetHandler():GetEquipGroup():IsExists(Card.IsType,1,nil,TYPE_MONSTER)
-end
-function s.atkval(e,c)
-	local g=c:GetEquipGroup():Filter(Card.IsType,nil,TYPE_MONSTER)
-	if #g>0 then
-		local ec=g:GetFirst()
-		if e:GetCode()==EFFECT_SET_ATTACK then
-			return ec:GetTextAttack()>=0 and ec:GetTextAttack() or 0
-		else
-			return ec:GetTextDefense()>=0 and ec:GetTextDefense() or 0
-		end
+function s.adval(e,c)
+	local atk=e:GetHandler():GetTextAttack()
+	local def=e:GetHandler():GetTextDefense()
+	if e:GetCode()==EFFECT_SET_ATTACK_FINAL then
+		return atk>=0 and atk or 0
 	else
-		return 0
+		return def>=0 and def or 0
 	end
 end
+
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp~=tp and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
+	return rp~=tp and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) 
+		and e:GetHandler():GetEquipGroup():IsExists(Card.IsType,1,nil,TYPE_MONSTER)
 end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=e:GetHandler():GetEquipGroup():Filter(Card.IsType,nil,TYPE_MONSTER)
 	if chk==0 then return #g>0 end
-	Duel.SendtoGrave(g,REASON_COST)
+	local tc=g:GetFirst()
+	Duel.SendtoGrave(tc,REASON_COST)
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
-	if re:GetHandler():IsDestructable() and re:GetHandler():IsRelateToEffect(re) then
+	if re:GetHandler():IsDestructable() then
 		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
 	end
 end
