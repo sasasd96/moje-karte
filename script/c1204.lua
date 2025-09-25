@@ -20,11 +20,11 @@ function s.initial_effect(c)
 	--Quick Effect when tributed
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
-	e3:SetType(EFFECT_TYPE_QUICK_O)
-	e3:SetCode(EVENT_FREE_CHAIN)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetCountLimit(1,id)
-	e3:SetCondition(s.qecon)
+	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_DESTROY)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetCode(EVENT_RELEASE)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
+	e3:SetCountLimit(1,{id,1})
 	e3:SetTarget(s.qetg)
 	e3:SetOperation(s.qeop)
 	c:RegisterEffect(e3)
@@ -45,15 +45,12 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Draw(p,d,REASON_EFFECT)
 end
-function s.qecon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsReleasable()
-end
 function s.thfilter(c)
 	return c:IsSetCard(0x411) and c:IsAbleToHand()
 end
 function s.qetg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil)
-	local b2=Duel.IsExistingMatchingCard(Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
+	local b2=Duel.IsExistingMatchingCard(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
 	if chk==0 then return b1 or b2 end
 	local op=0
 	if b1 and b2 then
@@ -71,7 +68,6 @@ function s.qetg(e,tp,eg,ep,ev,re,r,rp,chk)
 		e:SetCategory(CATEGORY_DESTROY)
 		Duel.SetOperationInfo(0,CATEGORY_DESTROY,nil,1,PLAYER_ALL,LOCATION_ONFIELD)
 	end
-	Duel.Release(e:GetHandler(),REASON_COST)
 end
 function s.qeop(e,tp,eg,ep,ev,re,r,rp)
 	local op=e:GetLabel()
@@ -89,7 +85,7 @@ function s.qeop(e,tp,eg,ep,ev,re,r,rp)
 	else
 		--Destroy card
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+		local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 		if #g>0 then
 			Duel.Destroy(g,REASON_EFFECT)
 		end

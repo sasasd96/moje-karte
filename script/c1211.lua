@@ -19,7 +19,8 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.PayLPCost(tp,1000)
 end
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and aux.IsCodeListed(c,1200) 
+	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and c:IsLevelBelow(4)
+		and (c:IsCode(1204) or c:IsCode(1205) or c:IsCode(1206))
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
