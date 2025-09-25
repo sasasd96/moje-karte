@@ -24,7 +24,7 @@ function s.initial_effect(c)
 end
 s.listed_series={0x410}
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and aux.IsCodeListed(c,1200) 
+	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and (c:IsCode(1204) or c:IsCode(1205) or c:IsCode(1206))
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -45,7 +45,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.thfilter(c)
-	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and aux.IsCodeListed(c,1200) and c:IsAbleToHand()
+	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and (c:IsCode(1204) or c:IsCode(1205) or c:IsCode(1206)) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil) end

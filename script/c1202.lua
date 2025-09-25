@@ -51,7 +51,7 @@ function s.tdfilter(c)
 	return c:IsCode(1200) and c:IsAbleToDeck()
 end
 function s.thfilter(c)
-	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and aux.IsCodeListed(c,1200) and c:IsAbleToHand()
+	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and (c:IsCode(1204) or c:IsCode(1205) or c:IsCode(1206)) and c:IsAbleToHand()
 end
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.tdfilter(chkc) end

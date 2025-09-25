@@ -15,7 +15,7 @@ function s.initial_effect(c)
 end
 s.listed_series={0x410}
 function s.cfilter(c)
-	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and aux.IsCodeListed(c,1200) and c:IsReleasable()
+	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and (c:IsCode(1204) or c:IsCode(1205) or c:IsCode(1206)) and c:IsReleasable()
 end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0x410) and c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
