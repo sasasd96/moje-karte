@@ -24,7 +24,7 @@ function s.initial_effect(c)
 	e2:SetCountLimit(1,{id,1})
 	c:RegisterEffect(e2)
 end
-s.listed_names={15259703}
+s.listed_names={15259703,43175858}
 s.listed_series={0x62}
 function s.filter(c,e,tp)
 	return c:IsSetCard(0x62) and c:IsType(TYPE_MONSTER) and c:IsCanBeEffectTarget(e)
@@ -70,7 +70,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.repfilter(c,tp)
-	return c:IsFaceup() and c:IsCode(15259703) and c:IsOnField() and c:IsControler(tp) 
+	return c:IsFaceup() and (c:IsCode(15259703) or c:IsCode(43175858)) and c:IsOnField() and c:IsControler(tp) 
 		and c:IsReason(REASON_EFFECT) and not c:IsReason(REASON_REPLACE)
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)

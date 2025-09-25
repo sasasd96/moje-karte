@@ -25,14 +25,15 @@ function s.initial_effect(c)
 	e3:SetOperation(s.desop)
 	c:RegisterEffect(e3)
 end
-s.listed_names={15259703}
+s.listed_names={15259703,43175858}
 s.listed_series={0x62}
 function s.atcon(e)
 	return e:GetHandler():GetTurnID()==Duel.GetTurnCount()
 end
 function s.dircon(e)
 	local tp=e:GetHandlerPlayer()
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
+	return (Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
+		or Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,43175858),tp,LOCATION_ONFIELD,0,1,nil))
 		and not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x62),tp,0,LOCATION_MZONE,1,nil)
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)

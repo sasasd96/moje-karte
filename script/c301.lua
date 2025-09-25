@@ -55,11 +55,11 @@ function s.initial_effect(c)
 	e6:SetOperation(s.negop)
 	c:RegisterEffect(e6)
 end
-s.listed_names={15259703}
+s.listed_names={15259703,43175858}
 s.listed_series={0x62}
 function s.spfilter(c,tp)
-	return c:IsSetCard(0x62) and c:IsType(TYPE_MONSTER) and (c:IsControler(tp) or c:IsFaceup())
-		and (c:IsLocation(LOCATION_HAND) or c:IsReleasable())
+	return c:IsSetCard(0x62) and c:IsType(TYPE_MONSTER) 
+		and (c:IsLocation(LOCATION_HAND) or (c:IsLocation(LOCATION_MZONE) and c:IsReleasable()))
 end
 function s.spcon(e,c)
 	if c==nil then return true end
@@ -95,11 +95,13 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 end
 function s.dircon(e)
 	local tp=e:GetHandlerPlayer()
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
+	return (Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
+		or Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,43175858),tp,LOCATION_ONFIELD,0,1,nil))
 		and not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x62),tp,0,LOCATION_MZONE,1,nil)
 end
 function s.eqcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
+		or Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,43175858),tp,LOCATION_ONFIELD,0,1,nil)
 end
 function s.eqfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_MONSTER) and c:IsAbleToChangeControler()

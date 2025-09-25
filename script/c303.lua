@@ -34,14 +34,15 @@ function s.initial_effect(c)
 	e4:SetOperation(s.thop)
 	c:RegisterEffect(e4)
 end
-s.listed_names={15259703,75878039}
+s.listed_names={15259703,43175858,75878039}
 s.listed_series={0x62}
 function s.atcon(e)
 	return e:GetHandler():GetTurnID()==Duel.GetTurnCount()
 end
 function s.dircon(e)
 	local tp=e:GetHandlerPlayer()
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
+	return (Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,15259703),tp,LOCATION_ONFIELD,0,1,nil)
+		or Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,43175858),tp,LOCATION_ONFIELD,0,1,nil))
 		and not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x62),tp,0,LOCATION_MZONE,1,nil)
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
@@ -61,7 +62,7 @@ function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
 end
 function s.thfilter(c)
-	return (c:IsCode(15259703) or c:IsCode(75878039)) and c:IsAbleToHand()
+	return (c:IsCode(15259703) or c:IsCode(43175858) or c:IsCode(75878039)) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil) end
