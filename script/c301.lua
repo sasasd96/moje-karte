@@ -31,7 +31,7 @@ function s.initial_effect(c)
 	e3:SetTarget(s.eqtg)
 	e3:SetOperation(s.eqop)
 	c:RegisterEffect(e3)
-	--Negate and banish
+	--Negate activation and banish
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
 	e4:SetCategory(CATEGORY_NEGATE+CATEGORY_REMOVE)
@@ -39,11 +39,29 @@ function s.initial_effect(c)
 	e4:SetCode(EVENT_CHAINING)
 	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetCondition(s.negcon)
+	e4:SetCondition(s.negcon1)
 	e4:SetCost(s.negcost)
-	e4:SetTarget(s.negtg)
-	e4:SetOperation(s.negop)
+	e4:SetTarget(s.negtg1)
+	e4:SetOperation(s.negop1)
 	c:RegisterEffect(e4)
+	--Negate summon and banish
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,2))
+	e5:SetCategory(CATEGORY_NEGATE+CATEGORY_REMOVE)
+	e5:SetType(EFFECT_TYPE_QUICK_O)
+	e5:SetCode(EVENT_SUMMON)
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetCondition(s.negcon2)
+	e5:SetCost(s.negcost)
+	e5:SetTarget(s.negtg2)
+	e5:SetOperation(s.negop2)
+	c:RegisterEffect(e5)
+	local e6=e5:Clone()
+	e6:SetCode(EVENT_FLIP_SUMMON)
+	c:RegisterEffect(e6)
+	local e7=e5:Clone()
+	e7:SetCode(EVENT_SPSUMMON)
+	c:RegisterEffect(e7)
 end
 s.listed_names={15259703,43175858}
 s.listed_series={0x62}
@@ -153,25 +171,44 @@ function s.adval(e,c)
 	end
 end
 
-function s.negcon(e,tp,eg,ep,ev,re,r,rp)
+--Negate activation functions
+function s.negcon1(e,tp,eg,ep,ev,re,r,rp)
 	return rp~=tp and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) 
 		and e:GetHandler():GetEquipGroup():IsExists(Card.IsType,1,nil,TYPE_MONSTER)
 end
-function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=e:GetHandler():GetEquipGroup():Filter(Card.IsType,nil,TYPE_MONSTER)
-	if chk==0 then return #g>0 end
-	local tc=g:GetFirst()
-	Duel.Remove(tc,POS_FACEUP,REASON_COST)
-end
-function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.negtg1(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
 	if re:GetHandler():IsAbleToRemove() then
 		Duel.SetOperationInfo(0,CATEGORY_REMOVE,eg,1,0,0)
 	end
 end
-function s.negop(e,tp,eg,ep,ev,re,r,rp)
+function s.negop1(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
 		Duel.Remove(eg,POS_FACEUP,REASON_EFFECT)
 	end
+end
+
+--Negate summon functions
+function s.negcon2(e,tp,eg,ep,ev,re,r,rp)
+	return ep~=tp and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
+		and e:GetHandler():GetEquipGroup():IsExists(Card.IsType,1,nil,TYPE_MONSTER)
+end
+function s.negtg2(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,#eg,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,eg,#eg,0,0)
+end
+function s.negop2(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.NegateSummon(eg) then
+		Duel.Remove(eg,POS_FACEUP,REASON_EFFECT)
+	end
+end
+
+--Shared cost function
+function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local g=e:GetHandler():GetEquipGroup():Filter(Card.IsType,nil,TYPE_MONSTER)
+	if chk==0 then return #g>0 end
+	local tc=g:GetFirst()
+	Duel.Remove(tc,POS_FACEUP,REASON_COST)
 end
