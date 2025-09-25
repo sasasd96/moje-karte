@@ -31,10 +31,10 @@ function s.initial_effect(c)
 	e3:SetTarget(s.eqtg)
 	e3:SetOperation(s.eqop)
 	c:RegisterEffect(e3)
-	--Negate and destroy
+	--Negate and banish
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
-	e4:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
+	e4:SetCategory(CATEGORY_NEGATE+CATEGORY_REMOVE)
 	e4:SetType(EFFECT_TYPE_QUICK_O)
 	e4:SetCode(EVENT_CHAINING)
 	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
@@ -161,17 +161,17 @@ function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=e:GetHandler():GetEquipGroup():Filter(Card.IsType,nil,TYPE_MONSTER)
 	if chk==0 then return #g>0 end
 	local tc=g:GetFirst()
-	Duel.SendtoGrave(tc,REASON_COST)
+	Duel.Remove(tc,POS_FACEUP,REASON_COST)
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
-	if re:GetHandler():IsDestructable() then
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
+	if re:GetHandler():IsAbleToRemove() then
+		Duel.SetOperationInfo(0,CATEGORY_REMOVE,eg,1,0,0)
 	end
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
-		Duel.Destroy(eg,REASON_EFFECT)
+		Duel.Remove(eg,POS_FACEUP,REASON_EFFECT)
 	end
 end
