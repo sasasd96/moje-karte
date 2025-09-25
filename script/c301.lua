@@ -44,7 +44,7 @@ function s.initial_effect(c)
 	--Negate activation
 	local e6=Effect.CreateEffect(c)
 	e6:SetDescription(aux.Stringid(id,1))
-	e6:SetCategory(CATEGORY_NEGATE+CATEGORY_REMOVE)
+	e6:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
 	e6:SetType(EFFECT_TYPE_QUICK_O)
 	e6:SetCode(EVENT_CHAINING)
 	e6:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
@@ -110,7 +110,7 @@ function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and s.eqfilter(chkc) end
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
 		and Duel.IsExistingTarget(s.eqfilter,tp,0,LOCATION_MZONE,1,nil)
-		and not Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_SZONE,0,1,nil,TYPE_EQUIP) end
+		and not e:GetHandler():GetEquipGroup():IsExists(Card.IsType,1,nil,TYPE_MONSTER) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
 	local g=Duel.SelectTarget(tp,s.eqfilter,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_EQUIP,g,1,0,0)
@@ -140,7 +140,12 @@ end
 function s.atkval(e,c)
 	local g=c:GetEquipGroup():Filter(Card.IsType,nil,TYPE_MONSTER)
 	if #g>0 then
-		return g:GetFirst():GetAttack()
+		local ec=g:GetFirst()
+		if e:GetCode()==EFFECT_SET_ATTACK then
+			return ec:GetTextAttack()>=0 and ec:GetTextAttack() or 0
+		else
+			return ec:GetTextDefense()>=0 and ec:GetTextDefense() or 0
+		end
 	else
 		return 0
 	end
@@ -151,17 +156,17 @@ end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=e:GetHandler():GetEquipGroup():Filter(Card.IsType,nil,TYPE_MONSTER)
 	if chk==0 then return #g>0 end
-	Duel.Remove(g,POS_FACEUP,REASON_COST)
+	Duel.SendtoGrave(g,REASON_COST)
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
-	if re:GetHandler():IsAbleToRemove() and re:GetHandler():IsRelateToEffect(re) then
-		Duel.SetOperationInfo(0,CATEGORY_REMOVE,eg,1,0,0)
+	if re:GetHandler():IsDestructable() and re:GetHandler():IsRelateToEffect(re) then
+		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
 	end
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
-		Duel.Remove(eg,POS_FACEUP,REASON_EFFECT)
+		Duel.Destroy(eg,REASON_EFFECT)
 	end
 end
