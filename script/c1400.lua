@@ -21,14 +21,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
-	--ATK becomes tributed monster's ATK + 1000
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_SINGLE)
-	e3:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetCode(EFFECT_SET_ATTACK_FINAL)
-	e3:SetValue(s.atkval)
-	c:RegisterEffect(e3)
+
 	--Negate and destroy Spell/Trap that target this card
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
@@ -67,22 +60,20 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and Duel.Release(tc,REASON_EFFECT)~=0 then
-		if c:IsRelateToEffect(e) then
-			Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)
-			--Store the tributed monster's ATK
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_SET_ATTACK_FINAL)
-			e1:SetValue(tc:GetAttack()+1000)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			c:RegisterEffect(e1)
+	if tc and tc:IsRelateToEffect(e) then
+		local atk_val=tc:GetAttack()
+		if Duel.Release(tc,REASON_EFFECT)~=0 then
+			if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)~=0 then
+				--Set ATK to tributed monster's ATK + 1000
+				local e1=Effect.CreateEffect(c)
+				e1:SetType(EFFECT_TYPE_SINGLE)
+				e1:SetCode(EFFECT_SET_ATTACK)
+				e1:SetValue(atk_val+1000)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
+				c:RegisterEffect(e1)
+			end
 		end
 	end
-end
-
-function s.atkval(e,c)
-	return e:GetHandler():GetFlagEffectLabel(id) or 0
 end
 
 function s.negtg(e,tp,eg,ep,ev,re,r,rp)
