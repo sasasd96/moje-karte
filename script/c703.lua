@@ -61,6 +61,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 s.listed_series={0x111}
+s.listed_names={75906310}
 
 --Material filters
 function s.matfilter1(c)
@@ -131,7 +132,7 @@ end
 
 --Target and operation
 function s.spfilter(c,e,tp)
-	return c:IsLevel(10) and c:IsType(TYPE_FUSION) and c:ListsArchetypeAsMaterial(0x111)
+	return c:IsLevel(10) and c:IsType(TYPE_FUSION) and (c:ListsArchetypeAsMaterial(0x111) or c:IsCode(75906310))
 		and c:IsCanBeSpecialSummoned(e,0,tp,true,false,POS_FACEUP_DEFENSE)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
