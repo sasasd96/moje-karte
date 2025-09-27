@@ -45,7 +45,7 @@ end
 
 --Special Summon or Fusion Summon
 function s.spfilter(c,e,tp)
-	return c:IsRace(RACE_WARRIOR) and c:IsAttribute(ATTRIBUTE_EARTH) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x200) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.fusfilter(c,e,tp,m,f,chkf)
 	return c:IsType(TYPE_FUSION) and c:IsRace(RACE_WARRIOR) and c:IsAttribute(ATTRIBUTE_EARTH) 
@@ -101,10 +101,10 @@ end
 --Double damage
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local bc=c:GetBattleTarget()
 	return c:IsFaceup() and Duel.GetBattleDamage(tp)>0 
-		and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsRace,RACE_WARRIOR),tp,LOCATION_MZONE,0,1,nil)
+		and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x200),tp,LOCATION_MZONE,0,1,nil)
 end
 function s.damop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ChangeBattleDamage(tp,Duel.GetBattleDamage(tp)*2)
 end
+s.listed_series={0x200}

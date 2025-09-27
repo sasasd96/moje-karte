@@ -35,7 +35,7 @@ end
 
 --Additional Normal Summon
 function s.sumfilter(c)
-	return c:IsRace(RACE_WARRIOR) and c:IsAttribute(ATTRIBUTE_EARTH)
+	return c:IsSetCard(0x200)
 end
 function s.sumcon(e)
 	return e:GetHandler():IsPublic()
@@ -43,23 +43,24 @@ end
 
 --Damage increase
 function s.damtg(e,c)
-	return c:IsRace(RACE_WARRIOR) and c:IsAttribute(ATTRIBUTE_EARTH)
+	return c:IsSetCard(0x200)
 end
 function s.damval(e,re,val,r,rp,rc)
-	if (r&REASON_BATTLE)~=0 and re and re:GetHandler():IsRace(RACE_WARRIOR) and re:GetHandler():IsAttribute(ATTRIBUTE_EARTH) then
+	if (r&REASON_BATTLE)~=0 and re and re:GetHandler():IsSetCard(0x200) then
 		return val+600
 	else return val end
 end
 
 --Second attack
-function s.atkfilter(c)
-	return c:IsFaceup() and c:IsRace(RACE_WARRIOR) and c:IsAttribute(ATTRIBUTE_EARTH) and c~=e:GetHandler()
+function s.atkfilter(c,handler)
+	return c:IsFaceup() and c:IsSetCard(0x200) and c~=handler
 end
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.atkfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.atkfilter,tp,LOCATION_MZONE,0,1,nil) end
+	local c=e:GetHandler()
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.atkfilter(chkc,c) end
+	if chk==0 then return Duel.IsExistingTarget(s.atkfilter,tp,LOCATION_MZONE,0,1,c,c) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,s.atkfilter,tp,LOCATION_MZONE,0,1,1,nil)
+	Duel.SelectTarget(tp,s.atkfilter,tp,LOCATION_MZONE,0,1,1,c,c)
 end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
@@ -73,3 +74,4 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterEffect(e1)
 	end
 end
+s.listed_series={0x200}

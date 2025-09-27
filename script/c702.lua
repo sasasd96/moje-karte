@@ -70,20 +70,43 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		if Duel.SendtoHand(tc,nil,REASON_EFFECT)~=0 then
 			Duel.ConfirmCards(1-tp,tc)
 			Duel.ShuffleDeck(tp)
-			--Check if it's Ojama Trio or Ojama Duo and can be activated
+			--Check if it's Ojama Trio or Ojama Duo and can be activated directly from hand
 			if (tc:IsCode(29843091) or tc:IsCode(14470845)) and tc:IsLocation(LOCATION_HAND) then
 				if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-					Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
-					local te=tc:GetActivateEffect()
-					if te then
-						local tep=tc:GetControler()
-						local cost=te:GetCost()
-						if cost then cost(te,tep,eg,ep,ev,re,r,rp,1) end
-						Duel.RaiseEvent(tc,4179255,te,0,tp,tp,Duel.GetCurrentChain())
+					Duel.BreakEffect()
+					if tc:IsCode(29843091) then --Ojama Trio
+						s.ojama_trio_op(e,tp,eg,ep,ev,re,r,rp)
+					elseif tc:IsCode(14470845) then --Ojama Duo
+						s.ojama_duo_op(e,tp,eg,ep,ev,re,r,rp)
 					end
+					Duel.SendtoGrave(tc,REASON_EFFECT)
 				end
 			end
 		end
+	end
+end
+
+--Ojama Trio effect
+function s.ojama_trio_op(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(1-tp,LOCATION_MZONE)>=3 then
+		local token=Duel.CreateToken(tp,29843091+100)
+		Duel.SpecialSummonStep(token,0,tp,1-tp,false,false,POS_DEF)
+		local token2=Duel.CreateToken(tp,29843091+100)
+		Duel.SpecialSummonStep(token2,0,tp,1-tp,false,false,POS_DEF)
+		local token3=Duel.CreateToken(tp,29843091+100)
+		Duel.SpecialSummonStep(token3,0,tp,1-tp,false,false,POS_DEF)
+		Duel.SpecialSummonComplete()
+	end
+end
+
+--Ojama Duo effect  
+function s.ojama_duo_op(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(1-tp,LOCATION_MZONE)>=2 then
+		local token=Duel.CreateToken(tp,14470845+100)
+		Duel.SpecialSummonStep(token,0,tp,1-tp,false,false,POS_DEF)
+		local token2=Duel.CreateToken(tp,14470845+100)
+		Duel.SpecialSummonStep(token2,0,tp,1-tp,false,false,POS_DEF)
+		Duel.SpecialSummonComplete()
 	end
 end
 
@@ -91,3 +114,5 @@ end
 function s.atkval(e,c)
 	return Duel.GetMatchingGroupCount(aux.FaceupFilter(Card.IsSetCard,0xF),c:GetControler(),LOCATION_MZONE,LOCATION_MZONE,nil)*500
 end
+s.listed_series={0xF}
+s.listed_names={29843091,14470845}

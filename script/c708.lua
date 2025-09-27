@@ -29,7 +29,7 @@ end
 
 --Special Summon condition
 function s.cfilter(c)
-	return c:IsFaceup() and c:IsRace(RACE_WARRIOR) and c:IsAttribute(ATTRIBUTE_EARTH) and not c:IsCode(id)
+	return c:IsFaceup() and c:IsSetCard(0x200) and not c:IsCode(id)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
@@ -46,3 +46,4 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Damage(1-tp,400,REASON_EFFECT)
 	end
 end
+s.listed_series={0x200}

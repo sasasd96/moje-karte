@@ -124,3 +124,5 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
+s.listed_series={0x200}
+s.listed_names={29843091}

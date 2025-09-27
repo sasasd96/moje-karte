@@ -48,8 +48,7 @@ end
 
 --Special Summon from GY
 function s.spfilter(c,e,tp)
-	return (c:IsRace(RACE_WARRIOR) and c:IsAttribute(ATTRIBUTE_EARTH)) or (c:IsRace(RACE_FIEND) and c:IsAttribute(ATTRIBUTE_FIRE))
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return (c:IsSetCard(0x200) or c:IsSetCard(0x300)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
@@ -64,3 +63,4 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
+s.listed_series={0x200,0x300}
