@@ -48,7 +48,7 @@ function s.spfilter(c,e,tp)
 	return c:IsSetCard(0x200) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.fusfilter(c,e,tp,m,f,chkf)
-	return c:IsType(TYPE_FUSION) and c:IsRace(RACE_WARRIOR) and c:IsAttribute(ATTRIBUTE_EARTH) 
+	return c:IsType(TYPE_FUSION) and (c:IsSetCard(0x200) or (c:IsRace(RACE_WARRIOR) and c:IsAttribute(ATTRIBUTE_EARTH)))
 		and (not f or f(c)) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) 
 		and c:CheckFusionMaterial(m,nil,chkf)
 end

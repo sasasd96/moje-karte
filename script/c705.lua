@@ -12,14 +12,13 @@ function s.initial_effect(c)
 	e1:SetCondition(s.sumcon)
 	c:RegisterEffect(e1)
 	
-	--Damage increase
+	--Additional damage when opponent takes damage
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_CHANGE_BATTLE_DAMAGE)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetCode(EVENT_DAMAGE)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetTargetRange(LOCATION_MZONE,0)
-	e2:SetTarget(s.damtg)
-	e2:SetValue(s.damval)
+	e2:SetCondition(s.damcon)
+	e2:SetOperation(s.damop)
 	c:RegisterEffect(e2)
 	
 	--Second attack
@@ -41,14 +40,12 @@ function s.sumcon(e)
 	return e:GetHandler():IsPublic()
 end
 
---Damage increase
-function s.damtg(e,c)
-	return c:IsSetCard(0x200)
+--Additional damage when opponent takes damage
+function s.damcon(e,tp,eg,ep,ev,re,r,rp)
+	return ep==1-tp and ev>0
 end
-function s.damval(e,re,val,r,rp,rc)
-	if (r&REASON_BATTLE)~=0 and re and re:GetHandler():IsSetCard(0x200) then
-		return val+600
-	else return val end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Damage(1-tp,600,REASON_EFFECT)
 end
 
 --Second attack
