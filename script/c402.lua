@@ -109,24 +109,3 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --Return condition: effect was activated this turn
-function s.retcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFlagEffect(tp,id)>0
-end
-function s.retfilter(c)
-	return c:GetFlagEffect(id+200)>0 and c:IsAbleToHand()
-end
-function s.rettg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	local g=Duel.GetMatchingGroup(s.retfilter,tp,LOCATION_MZONE,0,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-end
-function s.retop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(s.retfilter,tp,LOCATION_MZONE,0,nil)
-	if #g>0 and Duel.SendtoHand(g,nil,REASON_EFFECT)>0 then
-		if c:IsRelateToEffect(e) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
-			Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-		end
-	end
-end
