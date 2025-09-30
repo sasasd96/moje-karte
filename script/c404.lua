@@ -2,15 +2,16 @@
 --Custom card for EdoPro
 local s,id=GetID()
 function s.initial_effect(c)
-	--Copy Normal Spell effect
+	--Add Spell from GY to hand
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_TOHAND)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1,id)
-	e1:SetCost(s.copycost)
-	e1:SetTarget(s.copytg)
-	e1:SetOperation(s.copyop)
+	e1:SetCost(s.thcost)
+	e1:SetTarget(s.thtg)
+	e1:SetOperation(s.thop)
 	c:RegisterEffect(e1)
 	--Quick Effect version if you control both Dark Magician and Dark Magician Girl
 	local e2=e1:Clone()
@@ -33,37 +34,26 @@ function s.initial_effect(c)
 end
 s.listed_names={46986414,38033121} --Dark Magician, Dark Magician Girl
 s.listed_series={0x10A2,0x30A2} --Dark Magician, Dark Magician Girl
---Copy Normal Spell cost and target
-function s.spellfilter(c)
-	return c:IsType(TYPE_SPELL) and c:IsType(TYPE_NORMAL) and c:IsAbleToGraveAsCost()
-		and (c:ListsCode(46986414) or c:ListsCode(38033121))
+--Add Spell from GY to hand
+function s.thfilter(c)
+	return c:IsType(TYPE_SPELL) and c:IsAbleToHand()
 end
-function s.copycost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckLPCost(tp,1000) and Duel.IsExistingMatchingCard(s.spellfilter,tp,LOCATION_DECK,0,1,nil) end
+function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.CheckLPCost(tp,1000) end
 	Duel.PayLPCost(tp,1000)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.spellfilter,tp,LOCATION_DECK,0,1,1,nil)
-	local tc=g:GetFirst()
-	Duel.SendtoGrave(tc,REASON_COST)
-	e:SetLabelObject(tc)
 end
-function s.copytg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local tc=e:GetLabelObject()
-	if chk==0 then return tc and tc:CheckActivateEffect(false,true,false)~=nil end
-	local te=tc:CheckActivateEffect(false,true,false)
-	e:SetLabelObject(te)
-	local tg=te:GetTarget()
-	if tg then tg(e,tp,eg,ep,ev,re,r,rp,1) end
-	te:SetLabelObject(e:GetLabelObject())
-	local cat=te:GetCategory()
-	Duel.SetOperationInfo(0,cat,nil,0,tp,0)
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and s.thfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.thfilter,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectTarget(tp,s.thfilter,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
-function s.copyop(e,tp,eg,ep,ev,re,r,rp)
-	local te=e:GetLabelObject()
-	if te then
-		e:SetLabelObject(te:GetLabelObject())
-		local op=te:GetOperation()
-		if op then op(e,tp,eg,ep,ev,re,r,rp) end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,tc)
 	end
 end
 --Quick Effect condition: control both Dark Magician and Dark Magician Girl
