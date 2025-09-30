@@ -87,5 +87,8 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 end
 --ATK gain value: 500 for each Spellcaster in GY
 function s.atkval(e,c)
-	return Duel.GetMatchingGroupCount(aux.FilterBoolFunctionEx(Card.IsRace,RACE_SPELLCASTER),c:GetControler(),LOCATION_GRAVE,0,nil)*500
+	local function spellfilter(c)
+		return c:IsRace(RACE_SPELLCASTER)
+	end
+	return Duel.GetMatchingGroupCount(spellfilter,c:GetControler(),LOCATION_GRAVE,0,nil)*500
 end

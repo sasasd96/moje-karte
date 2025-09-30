@@ -36,7 +36,7 @@ s.listed_series={0x10A2,0x30A2} --Dark Magician, Dark Magician Girl
 --Copy Normal Spell cost and target
 function s.spellfilter(c)
 	return c:IsType(TYPE_SPELL) and c:IsType(TYPE_NORMAL) and c:IsAbleToGraveAsCost()
-		and (aux.IsCodeListed(c,46986414) or aux.IsCodeListed(c,38033121))
+		and (c:ListsCode(46986414) or c:ListsCode(38033121))
 end
 function s.copycost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckLPCost(tp,1000) and Duel.IsExistingMatchingCard(s.spellfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -68,8 +68,14 @@ function s.copyop(e,tp,eg,ep,ev,re,r,rp)
 end
 --Quick Effect condition: control both Dark Magician and Dark Magician Girl
 function s.quickcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,46986414),tp,LOCATION_MZONE,0,1,nil)
-		and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,38033121),tp,LOCATION_MZONE,0,1,nil)
+	local function dmfilter(c)
+		return c:IsFaceup() and c:IsCode(46986414)
+	end
+	local function dmgfilter(c)
+		return c:IsFaceup() and c:IsCode(38033121)
+	end
+	return Duel.IsExistingMatchingCard(dmfilter,tp,LOCATION_MZONE,0,1,nil)
+		and Duel.IsExistingMatchingCard(dmgfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 --Special Summon condition: sent from monster zone to GY by battle or card effect
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)

@@ -57,7 +57,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 --Add monster that lists "Dark Magician"
 function s.thfilter(c)
-	return c:IsLevelBelow(4) and aux.IsCodeListed(c,46986414) and c:IsAbleToHand()
+	return c:IsLevelBelow(4) and c:ListsCode(46986414) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end

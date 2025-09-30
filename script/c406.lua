@@ -40,7 +40,10 @@ function s.splimit(e,se,sp,st)
 end
 --ATK gain: 50 for each DARK monster in GY
 function s.atkval(e,c)
-	return Duel.GetMatchingGroupCount(aux.FilterBoolFunctionEx(Card.IsAttribute,ATTRIBUTE_DARK),c:GetControler(),LOCATION_GRAVE,0,nil)*50
+	local function darkfilter(c)
+		return c:IsAttribute(ATTRIBUTE_DARK)
+	end
+	return Duel.GetMatchingGroupCount(darkfilter,c:GetControler(),LOCATION_GRAVE,0,nil)*50
 end
 --Banish 1 card on field
 function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)

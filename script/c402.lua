@@ -54,8 +54,9 @@ s.ritual_spell={21082832} --Chaos Form
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 	if re:GetHandler():IsCode(id) and re:GetDescription()==aux.Stringid(id,0) then
 		Duel.RegisterFlagEffect(rp,id,RESET_PHASE+PHASE_END,0,1)
-		local tc=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):GetFirst()
-		if tc then
+		local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+		if tg and tg:GetCount()>0 then
+			local tc=tg:GetFirst()
 			tc:RegisterFlagEffect(id+100,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1,ep)
 		end
 	end
